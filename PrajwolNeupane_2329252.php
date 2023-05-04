@@ -16,48 +16,42 @@
   <?php
 
 
-  $rest_api_url = 'https://api.openweathermap.org/data/2.5/weather?q=Renfrewshire&exclude=minutely,hourly&units=metric&appid=b26c79aaab8dc734c4a06a2b8f4593d0';
+  $weather_api = 'https://api.openweathermap.org/data/2.5/weather?q=Renfrewshire&exclude=minutely,hourly&units=metric&appid=b26c79aaab8dc734c4a06a2b8f4593d0';
 
 
   // Reads the JSON file.
-  $json_data = file_get_contents($rest_api_url);
+  $weather_json_data = file_get_contents($weather_api);
 
 
   // Decodes the JSON data into a PHP array.
-  $response_data = json_decode($json_data);
+  $weather_response_data = json_decode($weather_json_data);
 
 
   // All the users data exists in 'data' object
-  $user_data = $response_data;
+  $weather_data = $weather_response_data;
 
-  // Print data if need to debug
-
-  // print_r($user_data->main->humidity);
-  // It traverses the array and display user data
-
-
-  $city = $user_data->name;
-  $icon = $user_data->weather[0]->icon;
-  $max_temp = $user_data->main->temp_max;
-  $min_temp = $user_data->main->temp_min;
-  $current_temp = $user_data->main->temp;
-  $wind = $user_data->wind->speed;
-  $humidity = $user_data->main->humidity;
-  $description = $user_data->weather[0]->description;
-  $response_time = $user_data->timezone;
+  $city = $weather_data->name;
+  $icon = $weather_data->weather[0]->icon;
+  $max_temp = $weather_data->main->temp_max;
+  $min_temp = $weather_data->main->temp_min;
+  $current_temp = $weather_data->main->temp;
+  $wind = $weather_data->wind->speed;
+  $humidity = $weather_data->main->humidity;
+  $description = $weather_data->weather[0]->description;
+  $response_time = $weather_data->timezone;
   $date = new DateTime('now', new DateTimeZone('UTC'));
   $date->modify($response_time * 1000 . ' hours');
   $time = $date->format('H:i:s');
-  $lat = $user_data->coord->lat;
-  $lon = $user_data->coord->lon;
+  $lat = $weather_data->coord->lat;
+  $lon = $weather_data->coord->lon;
 
 
-  $timeapi = "https://timeapi.io/api/TimeZone/coordinate?latitude=$lat&longitude=$lon";
+  $time_api = "https://timeapi.io/api/TimeZone/coordinate?latitude=$lat&longitude=$lon";
 
-  $json_time_data = file_get_contents($timeapi);
-  $response_data = json_decode($json_time_data);
+  $time_json_data = file_get_contents($time_api);
+  $time_data = json_decode($time_json_data);
   $day_list = array("Sun" => "Sunday", "Mon" => "Monday", "Tue" => "Tuesday", "Wed" => "Wednesday", "Thu" => "Thursday", "Fri" => "Friday", "Sat" => "Saturday");
-  $time_data = $response_data->currentLocalTime;
+  $time_data = $time_data->currentLocalTime;
   $current_time = new DateTime($time_data);
   $year = $current_time->format('Y');
   $month = $current_time->format('M');
@@ -66,7 +60,7 @@
   $day_count = $current_time->format('d');
   $hour = $current_time->format('H');
   $minute = $current_time->format('m');
-  $time = "$year $month$day_count $day $hour:$minute";
+  $time = "$year $day_count$month $day $hour:$minute";
 
 
   $servername = "127.0.0.1:3307";
@@ -95,14 +89,14 @@
       <img src="http://openweathermap.org/img/wn/<?php echo $icon ?>@4x.png" />
       <h2>Description : <?php echo $description; ?></h2>
       <h3>Current Temperature : <?php echo $current_temp; ?> °C</h3>
-      <h3>Time : <?php echo $time; ?> °C</h3>
+      <h3>Time : <?php echo $time; ?></h3>
       <h4>Min Temperature : <?php echo $min_temp; ?> °C</h4>
       <h4>Max Temperature : <?php echo $max_temp; ?> °C</h4>
       <h4>Humidity : <?php echo $humidity; ?> %</h4>
       <h4>Wind : <?php echo $wind; ?> m/s</h4>
     </div>
-    <h1>Past Data at Renfrewshire, GB </h1>
-    <table border="1px" cellspacing="0" cellpadding="10px">
+    <h2>Past Data at Renfrewshire, GB </h2>
+    <table>
       <tr>
         <th>Day</th>
         <th>Date</th>
@@ -123,10 +117,14 @@
           <td><img src="https://openweathermap.org/img/wn/<?php echo $row['icon']; ?>@2x.png" /></td>
           <td><?php echo $row['description']; ?></td>
           <td><?php echo $row['humidity']; ?> %</td>
-          <td><?php echo $row['wind']; ?> km/h </td>
+          <td><?php echo $row['wind']; ?> m/s </td>
         </tr>
       <?php } ?>
     </table>
+    <div class="footer flex-col">
+    <h3>Prajwol Neupane</h3>
+    <h3>2329252 </h3>
+  </div>
   </div>
   <div class="bg-image" style="background: url(https://openweathermap.org/img/wn/<?php echo $icon; ?>@4x.png);background-size: 25% ;"></div>
 </body>
