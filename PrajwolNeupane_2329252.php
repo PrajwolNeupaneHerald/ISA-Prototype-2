@@ -15,7 +15,7 @@
   <!-- 2329252 -->
   <?php
 
-
+  //Url for weather api
   $weather_api = 'https://api.openweathermap.org/data/2.5/weather?q=Renfrewshire&exclude=minutely,hourly&units=metric&appid=b26c79aaab8dc734c4a06a2b8f4593d0';
 
 
@@ -30,6 +30,7 @@
   // All the users data exists in 'data' object
   $weather_data = $weather_response_data;
 
+  //Getting required values and storing in variables
   $city = $weather_data->name;
   $icon = $weather_data->weather[0]->icon;
   $max_temp = $weather_data->main->temp_max;
@@ -38,16 +39,14 @@
   $wind = $weather_data->wind->speed;
   $humidity = $weather_data->main->humidity;
   $description = $weather_data->weather[0]->description;
-  $response_time = $weather_data->timezone;
-  $date = new DateTime('now', new DateTimeZone('UTC'));
-  $date->modify($response_time * 1000 . ' hours');
-  $time = $date->format('H:i:s');
   $lat = $weather_data->coord->lat;
   $lon = $weather_data->coord->lon;
 
-
+  //URL for time api
   $time_api = "https://timeapi.io/api/TimeZone/coordinate?latitude=$lat&longitude=$lon";
 
+
+  //Getting required values and storing in variables
   $time_json_data = file_get_contents($time_api);
   $time_data = json_decode($time_json_data);
   $day_list = array("Sun" => "Sunday", "Mon" => "Monday", "Tue" => "Tuesday", "Wed" => "Wednesday", "Thu" => "Thursday", "Fri" => "Friday", "Sat" => "Saturday");
@@ -62,22 +61,26 @@
   $minute = $current_time->format('m');
   $time = "$year $day_count$month $day $hour:$minute";
 
-
+  //Variables for Database 
   $servername = "127.0.0.1:3307";
   $username = "root";
   $userpassword = "";
   $dbname = "weatherapp";
+
+  //Connection for Data Base
   $conn = mysqli_connect($servername, $username, $userpassword, $dbname);
 
   if (!$conn) {
     die("Connection failed : " . mysqli_connect_errno());
   }
 
-
+  //Query for updating data into mysql
   $upate_sql = "UPDATE pastdays SET maxtemp='$max_temp', mintemp='$min_temp' ,city='Renfrewshire' , wind='$wind' , icon='$icon' , description='$description' , humidity='$humidity' , date='$year-$month_count-$day_count' WHERE day='$day'";
   $conn->query($upate_sql);
 
+  //Query for getting data from database
   $sql = "SELECT * FROM pastdays ORDER BY date DESC;";
+  //Storing data into result
   $result = $conn->query($sql);
 
   ?>
@@ -85,6 +88,7 @@
   ?>
   <div class="flex-col content">
     <div class="flex-col current-content">
+      <!-- Showing api response from php script -->
       <h1><?php echo $city; ?></h1>
       <img src="http://openweathermap.org/img/wn/<?php echo $icon ?>@4x.png" />
       <h2>Description : <?php echo $description; ?></h2>
@@ -108,7 +112,8 @@
         <th>Wind Speed</th>
       </tr>
       <?php while ($row = mysqli_fetch_assoc($result)) {
-      ?>
+      ?>  
+      <!-- Fetching data into table with while loop -->
         <tr>
           <td><?php echo $row['day']; ?></td>
           <td><?php echo $row['date']; ?></td>
